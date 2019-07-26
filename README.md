@@ -9,5 +9,5 @@ Notes:
     I did try to maintain some level of backwards compatibility, but not guaranteed. 
  - Older python3 repository can be found here: https://github.swarthmore.edu/kgelber1/SSX-Python3
     
-- I put a gitignore in the data folder so it wouldn't clog thins up unnecessarily
+- I put a gitignore in the data folder so it wouldn't clog thins up unnecessarily, BUT that means you will need to directly import data from Ion onto your computer
    

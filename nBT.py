@@ -236,7 +236,7 @@ def run_nBT(shots, day, t_min = 15, t_max = 100,  show = True, save = False, yli
             fig.savefig(fName,dpi=600,facecolor='w',edgecolor='k')
 
 
-def plot_nT(title,t_dens, den, t_Ti, Ti, ylim, d_err = None, t_err= None):
+def plot_nT(title,t_dens, den, t_Ti, Ti, ylim, d_err = [], t_err= []):
     """ As the name may sugest, plots density and temperatreu subplots with error bars
 
     ylim is the lim of the temp graph
@@ -245,7 +245,7 @@ def plot_nT(title,t_dens, den, t_Ti, Ti, ylim, d_err = None, t_err= None):
 
     ax1= plt.subplot(2, 1, 1)
     plt.text(0.07,0.92,'(a)',fontsize=26, weight='bold',horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes,)
-    if(d_err != None):
+    if(len(d_err) > 0):
         plt.errorbar(t_dens[::10], den[::10], d_err[::10], fmt='None', ecolor='k',elinewidth=.5,markeredgewidth=.5,capsize=.5, alpha  =0.2)
     plt.plot(t_dens, den, color='k',lw= 2)
     plt.ylabel(r'n $(10^{15}\ cm^{-3})$',fontsize=20, weight='bold')
@@ -254,7 +254,7 @@ def plot_nT(title,t_dens, den, t_Ti, Ti, ylim, d_err = None, t_err= None):
 
     ax2=plt.subplot(2,1,2)
     plt.text(0.07,0.92,'(b)',fontsize=26, weight='bold',horizontalalignment='center',verticalalignment='center',transform=ax2.transAxes)
-    if(t_err != None):
+    if(len(t_err) > 0):
         plt.errorbar(t_Ti, Ti, t_err, fmt='None', ecolor='k',elinewidth=1 ,markeredgewidth=1,capsize=2, alpha  =0.5)
     plt.plot(t_Ti, Ti, color='k', linewidth=1)
     plt.ylabel(r'T$_i\ (eV)$',fontsize=20, weight='bold')
@@ -600,8 +600,8 @@ def main():
     all_shots = np.arange(first_shot,last_shot+1)
     shots = [shot for shot in all_shots if shot not in bad_shots]
     # shots = [13]
-    run_nBT(shots, day, t_min = 15, t_max = 100, show = False, save = True, ylim = 85)
-    # get_stats_err(shots, day, ylim = 40)
+    # run_nBT(shots, day, t_min = 15, t_max = 100, show = False, save = True, ylim = 85)
+    get_stats_err(shots, day, ylim = 40)
 
 if __name__ == '__main__':
     main()

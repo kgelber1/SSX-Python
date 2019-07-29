@@ -157,8 +157,9 @@ class BField_mag_Animator(object):
 
         # original
         # ax.view_init(elev=16.0, azim=-43.0)
-        # ax.view_init(elev=30.0, azim=-20.0)
-        ax.view_init(elev=26.0, azim=-25.0)
+
+        # ax.view_init(elev=26.0, azim=-25.0)
+        ax.view_init(elev=90.0, azim=0.0)
 
         ax1 = fig.add_subplot(gs[4, 0])
         plt.text(0.07,0.92,'(b)',fontsize = 18, weight='bold',horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes,)
@@ -388,13 +389,13 @@ def run(day, shot, t0 = 25, tf = 75, sample_Freq = 5, show = True):
 def main():
     """Just a place to specifiy variables"""
     day ='072419'
-    shot = 26
+    shot = 18
 
     sample_Freq = 5# sampling frequency - turn up for faster animations
-    t0 = 25
+    t0 = 20
     tf = 55
 
-    run(day, shot, t0, tf, sample_Freq, show = True)
+    run(day, shot, t0, tf, sample_Freq, show = False)
 
 
 

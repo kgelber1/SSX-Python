@@ -13,10 +13,7 @@ from scipy import interpolate
 from matplotlib import gridspec
 import os
 
-import process_mjmag_data as mj
-import iter_smooth as ism
 import mytools as my
-import ssx_data_read_basic as sdr
 import process_mag_data_4x4 as pmd
 import vector_plotter as vp
 from  nBT import *

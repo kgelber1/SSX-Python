@@ -17,10 +17,7 @@ from matplotlib import gridspec
 import os
 
 # reload(mj)
-import process_mjmag_data as mj
-import iter_smooth as ism
 import mytools as my
-import ssx_data_read_basic as sdr
 import process_mag_data_4x4 as pmd
 import vector_plotter as vp
 
@@ -314,6 +311,60 @@ class BField_mag_Animator(object):
         duration = (default_timer() - start)/60; print("time: %s min" % str(duration))
         print("\n\nFile saved as: %s\n\n" %filename)
 
+def run(day, shot, t0 = 25, tf = 75, sample_Freq = 5, show = True):
+    """ Main animating function.
+
+        Update paramters like day and shot, as well as start and end times
+
+        To make this code work with a different set up, you will need to:
+         - update the calibration used in pmd (process_mag_data_4x4)
+         - create new probe locations function (vp.get_probeLocs).
+         That's it!
+
+
+         --KG 07/25/19
+        """
+    # day = '061219'#'062618'#'101917'
+    # shot = 13#85
+
+
+    shot = day+'r'+ str(shot) #'40'#
+    timeb,b = pmd.get_Bxy_vecRendering_format_lookup(shot)
+
+    ######### fixing bounds using a function called fix_bounds ##########
+    t_index, t = my.fix_bounds(np.array((t0, tf)), timeb)
+
+    #Find what start and end index correspond to the right times
+    t0 = t_index[0]
+    tf = t_index[-1]
+    b = b[:,:,t0:tf]
+
+
+    probe_locs = vp.get_probeLocs_SSX_setup_cm(num_probes = 16)
+
+    #convert things to time vs probes instead of probes vs time
+    #and also thin the time
+    x = b[0,:,:].T[0:-1:sample_Freq]
+    y = b[1,:,:].T[0:-1:sample_Freq]
+    z = b[2,:,:].T[0:-1:sample_Freq]
+
+    t = timeb[t0:tf][0:-1:sample_Freq]
+    # path = os.getcwd() + '\\' + 'Magnetic_animations\\'
+    path = os.getcwd() + '\\data\\2019\\' +day+'\\Analyzed\\'
+
+    ##############################################
+    ######## Plotting the magnetic field vector rendering ############
+
+    Bmag = BField_mag_Animator(shot,t,probe_locs,x,y,z)#Instantiate the BField_xy_Animator Object
+    Bmag._set_flags([8,10,12]) #some probes have questionable directions
+    Bmag._set_dead([0])#probe has dead z- component
+    # Bmag._set_Plot_title("\nWest Gun lagging by 1 $\\mu$s")
+    # Bmag._set_Plot_title("\nWest Gun leading by 5 $\\mu$s")
+    animat = Bmag.make_animation() #Now create an animation
+    # animation.save('test.mp4', writer="ffmpeg")
+    Bmag.save_animation(path,animat) #Save the animation
+    if show:
+        plt.show()
 
 def main():
     """ Main animating function.

@@ -58,7 +58,7 @@ def plot_envs(day, shots, scope_used = '1'):
 		# fig.savefig(fName,dpi=150,facecolor='w',edgecolor='k')
 
 def main():
-	day = '072419'#'052417'#'081717'
+	day = '073019'#'052417'#'081717'
 	shot_range = [1,5]
 
 	plot_envs(day,np.arange(shot_range[0],shot_range[-1]+1))

@@ -6,12 +6,13 @@ import numpy as np
 
 def main():
     """Just a place to specifiy variables"""
-    day ='071019'
+    day ='073019'
 
-    first_shot = 6
+    first_shot = 12
+
     # last_shot = 44
-    last_shot = 36
-    bad_shots = [36]
+    last_shot = 43
+    bad_shots = [27]
 
     all_shots = np.arange(first_shot,last_shot+1)
     shots = [shot for shot in all_shots if shot not in bad_shots]

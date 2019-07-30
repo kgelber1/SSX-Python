@@ -158,8 +158,8 @@ class BField_mag_Animator(object):
         # original
         # ax.view_init(elev=16.0, azim=-43.0)
 
-        # ax.view_init(elev=26.0, azim=-25.0)
-        ax.view_init(elev=90.0, azim=0.0)
+        # ax.view_init(elev=90.0, azim=0.0)
+        ax.view_init(elev=26.0, azim=-25.0)
 
         ax1 = fig.add_subplot(gs[4, 0])
         plt.text(0.07,0.92,'(b)',fontsize = 18, weight='bold',horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes,)

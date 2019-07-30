@@ -5,6 +5,11 @@ import numpy as np
 from scipy.integrate import cumtrapz
 import itertools as it
 from scipy.interpolate import interp1d
+import pandas as pd
+import matplotlib.gridspec as gridspec
+from matplotlib.ticker import AutoMinorLocator
+from scipy import interpolate
+from timeit import default_timer
 
 
 import interferometer_new_1 as ds
@@ -15,10 +20,6 @@ import basic_hiresmag as hdr
 import basic_ids_1 as idsd
 import mytools as my
 import mjtools as mj
-import matplotlib.gridspec as gridspec
-from matplotlib.ticker import AutoMinorLocator
-from scipy import interpolate
-from timeit import default_timer
 
 """
 For reference:
@@ -585,22 +586,55 @@ def get_stats_err(shots,day, show = True, save = True, ylim = 35):
 
     if save:
         #haven't wrote yet but you could add a function to save the data here
-        pass
+        file = day + '-stats.csv'
+
+        df = pd.DataFrame()
+        print("Save feature not implemented yet")
+        #
+        # Data = {'First Field Name':  ['First value', 'Second value'],
+        # 'Second Field Name': ['First value', 'Second value']
+        # }
+
+        # df = DataFrame (Data, columns = ['First Field Name','Second Field Name',...])
+            # stat_writer = csv.writer(stats, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            # stat_writer.writerow(['Density Stats:'])
+            # stat_writer.writerow(['Average time of peak:', stats(ne_t)])
+            # stat_writer.writerow(['Average value of peak:', stats(ne_peak)])
+            # stat_writer.writerow(['Average value before peak:', stats(ne_pre)])
+            # stat_writer.writerow(['Average value after peak:', stats(ne_post)])
+            #
+            #
+            #
+            # stat_writer.writerow(['Temp Stats:'])
+            # stat_writer.writerow(['Average time of peak:', stats(Ti_t)])
+            # ti_peak, std_peak = stats(Ti_peak)
+            # stat_writer.writerow(['Average value of peak:', ti_peak, std_peak])
+            # ti_pre, std_pre = stats(Ti_pre)
+            # stat_writer.writerow(['Average value before peak:',ti_pre, std_pre])
+            # heat = ti_peak - ti_pre
+            # std = np.amax([std_pre, std_peak])
+            # stat_writer.writerow(['Average heating:',heat, std])
+            # stat_writer.writerow(['Average value after peak:', stats(Ti_post)])
+
+
+
+
 
 def main():
     #change your params!
-    day = '072419'
-    first_shot = 11
+    day = '073019'
+    first_shot = 12
     # last_shot = 44
     last_shot = 43
-    bad_shots = [14]
+    bad_shots = [27]
     # bad_shots = [20,23,39]
 
 
     all_shots = np.arange(first_shot,last_shot+1)
     shots = [shot for shot in all_shots if shot not in bad_shots]
-    # shots = [13]
-    # run_nBT(shots, day, t_min = 15, t_max = 100, show = False, save = True, ylim = 85)
+    # shots = [12,25,33,42]
+    # shots = [31]
+    # run_nBT(shots, day, t_min = 15, t_max = 75, show = True, save = False, ylim = 100)
     get_stats_err(shots, day, ylim = 40)
 
 if __name__ == '__main__':

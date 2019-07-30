@@ -50,5 +50,7 @@ def calshot(day):
         return '071819r2'
     if day == '072419':
         return '072419r3'
+    if day == '073019':
+        return '073019r5'
     else:
         print('Day/shot not found')

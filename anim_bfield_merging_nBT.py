@@ -388,8 +388,8 @@ def run(day, shot, t0 = 25, tf = 75, sample_Freq = 5, show = True):
 
 def main():
     """Just a place to specifiy variables"""
-    day ='072419'
-    shot = 18
+    day ='073019'
+    shot = 16
 
     sample_Freq = 5# sampling frequency - turn up for faster animations
     t0 = 20

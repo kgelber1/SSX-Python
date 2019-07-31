@@ -1,8 +1,8 @@
 from __future__ import division, print_function, absolute_import
 
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import cumtrapz
+import matplotlib.pyplot as plt
 import itertools as it
 from scipy.interpolate import interp1d
 import pandas as pd
@@ -10,6 +10,7 @@ import matplotlib.gridspec as gridspec
 from matplotlib.ticker import AutoMinorLocator
 from scipy import interpolate
 from timeit import default_timer
+import os
 
 
 import interferometer_new_1 as ds
@@ -103,6 +104,10 @@ def get_nT(shot, t, ax1, ax2):
     # Temp_shifted = [interp_Temp[my.tindex_center(timeT, time)] for time in t ]
     interp_den = interp1d(timeN, n, kind='linear')
     interp_Temp = interp1d(timeT, Temp, kind='linear')
+    # print("density")
+    # interp_den(t)
+    # print("temp")
+    # interp_den(t)
     plt.ylim(0,1.5*np.amax(interp_Temp(t)))
 
     return ax1, ax2, interp_den(t), interp_Temp(t)
@@ -237,13 +242,13 @@ def run_nBT(shots, day, t_min = 15, t_max = 100,  show = True, save = False, yli
             fig.savefig(fName,dpi=600,facecolor='w',edgecolor='k')
 
 
-def plot_nT(title,t_dens, den, t_Ti, Ti, ylim, d_err = [], t_err= []):
+def plot_nT(title,t_dens, den, t_Ti, Ti, ylim, d_err = [], t_err= [], save = True):
     """ As the name may sugest, plots density and temperatreu subplots with error bars
 
     ylim is the lim of the temp graph
 
     -- KG 07/19/19"""
-
+    fig=plt.figure(num=1,figsize=(10,6),facecolor='w',edgecolor='k')#, dpi=600)
     ax1= plt.subplot(2, 1, 1)
     plt.text(0.07,0.92,'(a)',fontsize=26, weight='bold',horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes,)
     if(len(d_err) > 0):
@@ -261,6 +266,11 @@ def plot_nT(title,t_dens, den, t_Ti, Ti, ylim, d_err = [], t_err= []):
     plt.ylabel(r'T$_i\ (eV)$',fontsize=20, weight='bold')
     plt.xlim(15,100)
     plt.ylim(0,ylim)
+    fname = os.getcwd() + '\\data\\20' + title[4:6] + '\\' + title[:6] + '\\Analyzed\\' + title[:6] + "-ave"
+    print(fname)
+    if save:
+        fig.savefig(fname,dpi=600,facecolor='w',edgecolor='k')
+
     plt.show()
 
 
@@ -571,7 +581,7 @@ def get_stats_err(shots,day, show = True, save = True, ylim = 35):
 
     if show:
         title = day + ' - averaged'
-        plot_nT(title, t_dens, den, t_Ti, Ti, ylim, d_err, t_err)
+        plot_nT(title, t_dens, den, t_Ti, Ti, ylim, d_err, t_err, save)
         print("Density Stats:")
         print("\tAverage time of peak:\n\t %.1f +/- %2.1f us" %(stats(ne_t)))
         print("\tAverage Value of peak:\n\t %.1f +/- %2.1f e15" %(stats(ne_peak)))
@@ -589,7 +599,7 @@ def get_stats_err(shots,day, show = True, save = True, ylim = 35):
         file = day + '-stats.csv'
 
         df = pd.DataFrame()
-        print("Save feature not implemented yet")
+        print("Rest of save feature not implemented yet")
         #
         # Data = {'First Field Name':  ['First value', 'Second value'],
         # 'Second Field Name': ['First value', 'Second value']
@@ -622,11 +632,11 @@ def get_stats_err(shots,day, show = True, save = True, ylim = 35):
 
 def main():
     #change your params!
-    day = '073019'
-    first_shot = 12
+    day = '072419'
+    first_shot = 11
     # last_shot = 44
     last_shot = 43
-    bad_shots = [27]
+    bad_shots = [14,34]
     # bad_shots = [20,23,39]
 
 

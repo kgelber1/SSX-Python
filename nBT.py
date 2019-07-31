@@ -491,7 +491,7 @@ def get_stats_err(shots,day, show = True, save = True, ylim = 35):
             t_dens = timeN
             den = n
         else:
-            den = [d + n[i] for i,d in enumerate(den,0)]
+            den = [d + n[k] for k,d in enumerate(den,0)]
         all_ne[i] = [x for x in n]
 
         # now get the peak between 20 and 30 us
@@ -579,6 +579,9 @@ def get_stats_err(shots,day, show = True, save = True, ylim = 35):
     def stats(arr):
         return (np.mean(arr),np.std(arr, dtype=np.float64)/lens)
 
+
+
+
     if show:
         title = day + ' - averaged'
         plot_nT(title, t_dens, den, t_Ti, Ti, ylim, d_err, t_err, save)
@@ -595,48 +598,41 @@ def get_stats_err(shots,day, show = True, save = True, ylim = 35):
         print("\tAverage value after peak:\n\t %.1f +/- %2.1f eV" %(stats(Ti_post)))
 
     if save:
-        #haven't wrote yet but you could add a function to save the data here
-        file = day + '-stats.csv'
-
         df = pd.DataFrame()
-        print("Rest of save feature not implemented yet")
-        #
-        # Data = {'First Field Name':  ['First value', 'Second value'],
-        # 'Second Field Name': ['First value', 'Second value']
-        # }
+        df['Average time of peak density'] = stats(ne_t)
+        df['Average peak density:'] = stats(ne_peak)
+        df['Average before peak density:'] = stats(ne_pre)
+        df['Average after peak density:'] = stats(ne_post)
+        df[' '] = [" ", " "]
 
-        # df = DataFrame (Data, columns = ['First Field Name','Second Field Name',...])
-            # stat_writer = csv.writer(stats, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            # stat_writer.writerow(['Density Stats:'])
-            # stat_writer.writerow(['Average time of peak:', stats(ne_t)])
-            # stat_writer.writerow(['Average value of peak:', stats(ne_peak)])
-            # stat_writer.writerow(['Average value before peak:', stats(ne_pre)])
-            # stat_writer.writerow(['Average value after peak:', stats(ne_post)])
-            #
-            #
-            #
-            # stat_writer.writerow(['Temp Stats:'])
-            # stat_writer.writerow(['Average time of peak:', stats(Ti_t)])
-            # ti_peak, std_peak = stats(Ti_peak)
-            # stat_writer.writerow(['Average value of peak:', ti_peak, std_peak])
-            # ti_pre, std_pre = stats(Ti_pre)
-            # stat_writer.writerow(['Average value before peak:',ti_pre, std_pre])
-            # heat = ti_peak - ti_pre
-            # std = np.amax([std_pre, std_peak])
-            # stat_writer.writerow(['Average heating:',heat, std])
-            # stat_writer.writerow(['Average value after peak:', stats(Ti_post)])
+        df['Average time of peak temp'] = stats(Ti_t)
+        ti_peak, std_peak = stats(Ti_peak)
+        ti_pre, std_pre = stats(Ti_pre)
+        heat = ti_peak - ti_pre
+        std = np.amax([std_pre, std_peak])
+        df['Average peak temp:'] = [ti_peak, std_peak]
+        df['Average before peak temp:'] = [ti_pre, std_pre]
+        df['Average heating:'] = [heat, std]
+        df['Average after peak temp:'] = stats(Ti_post)
+
+        df = df.round(2)
 
 
+        file = os.getcwd() + '\\data\\20' + day[4:6] + '\\' + day + '\\Analyzed\\' + day + '-stats.csv'
+        # print(file)
+        df.to_csv(str(file))
+        # idk if that doesn't work:
+        # df.to_csv(stats.csv)
 
 
 
 def main():
     #change your params!
-    day = '072419'
-    first_shot = 11
+    day = '073019'
+    first_shot = 12
     # last_shot = 44
-    last_shot = 43
-    bad_shots = [14,34]
+    last_shot = 14
+    bad_shots = [27]
     # bad_shots = [20,23,39]
 
 

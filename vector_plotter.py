@@ -26,8 +26,8 @@ import mytools as my
 This file contains a whole bunch of plotting functions, designed for plotting
 the magnetic field in 2 or 3 d.
 
-NOTE: You CANNOT just multiply an array by some value. You will get 100 arrays
-      Instead of that array with every element 100 times bigger. Hence the
+NOTE: You CANNOT just multiply a list by some value. You will get 100 lists
+      Instead of that list with every element 100 times bigger. Hence the
       list comprehensions (one line nested for loops)
 
 -- KG 06/14/19
@@ -598,6 +598,19 @@ def loadcurrent(shot, scope = '3'):
     eastcurrent = -data.ch2*170000#East gun 170kA/V
     westcurrent = -data.ch4*190000#West gun 190kA/V
     return time,eastcurrent,westcurrent
+
+
+def plot_voltage(shot, scope = '3'):
+    """ helper function to read in the current"""
+    data = sdr.scope_data(shot, scope)
+    time = data.time
+    eastvolt= data.ch1#East gun 170kA/V
+    westvolt = data.ch3#West gun 190kA/V
+    plt.plot(time, eastvolt, label = "East Voltage")
+    plt.plot(time, westvolt, label = "West Voltage")
+    plt.legend()
+    plt.show()
+
 
 
 def plots_4_doc(shot, num_probes = 16):
@@ -1272,9 +1285,9 @@ def convert_to_mp4(num_runs = 1, files = " "):
 
 
 def main():
-    day = '050119'
+    day = '073019'
     # day  = '062619'
-    shot_num =3
+    shot_num =13
     shot = day+'r'+ str(shot_num)
     # thin_every = 1 #for default
     thin_every = 1000
@@ -1292,7 +1305,8 @@ def main():
     # plot_2d(shot)
     # shot ='3'
     # shot = day+str(shot)
-    plot_2d_offCenter_down(shot)
+    # plot_2d_offCenter_down(shot)
+    plot_voltage(shot)
     # plots_4_doc(shot)
     # plot_both_currents(shot)
     # integrated_B(shot)

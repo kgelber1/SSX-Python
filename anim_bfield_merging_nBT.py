@@ -328,7 +328,45 @@ class BField_mag_Animator(object):
         # print
         # anim.save(filename, writer="ffmpeg")
 
+def snapshot(day, shot, t,  t0 = 25, tf = 75, sample_Freq = 5):
+        shot = day+'r'+ str(shot) #'40'#
+        timeb,b = pmd.get_Bxy_vecRendering_format_lookup(shot)
 
+        ######### fixing bounds using a function called fix_bounds ##########
+        t_index, t = my.fix_bounds(np.array((t0, tf)), timeb)
+
+        #Find what start and end index correspond to the right times
+        t0 = t_index[0]
+        tf = t_index[-1]
+        b = b[:,:,t0:tf]
+
+
+        probe_locs = vp.get_probeLocs_SSX_setup_cm(num_probes = 16)
+
+        #convert things to time vs probes instead of probes vs time
+        #and also thin the time
+        x = b[0,:,:].T[0:-1:sample_Freq]
+        y = b[1,:,:].T[0:-1:sample_Freq]
+        z = b[2,:,:].T[0:-1:sample_Freq]
+
+        t = timeb[t0:tf][0:-1:sample_Freq]
+        # path = os.getcwd() + '\\' + 'Magnetic_animations\\'
+        path = os.getcwd() + '\\data\\2019\\' +day+'\\Analyzed\\'
+
+        ##############################################
+        ######## Plotting the magnetic field vector rendering ############
+
+        Bmag = BField_mag_Animator(shot,t,probe_locs,x,y,z)#Instantiate the BField_xy_Animator Object
+        Bmag._set_flags([8,10,12]) #some probes have questionable directions
+        Bmag._set_dead([0])#probe has dead z- component
+        # Bmag._set_Plot_title("\nWest Gun lagging by 1 $\\mu$s")
+        # Bmag._set_Plot_title("\nWest Gun leading by 5 $\\mu$s")
+        B.gen_Arrows(t)
+        # animat = Bmag.make_animation() #Now create an animation
+        # animation.save('test.mp4', writer="ffmpeg")
+        # Bmag.save_animation(path,animat) #Save the animation
+        if show:
+            plt.show()
 def run(day, shot, t0 = 25, tf = 75, sample_Freq = 5, show = True):
     """ Main animating function.
 
@@ -380,6 +418,7 @@ def run(day, shot, t0 = 25, tf = 75, sample_Freq = 5, show = True):
     Bmag._set_dead([0])#probe has dead z- component
     # Bmag._set_Plot_title("\nWest Gun lagging by 1 $\\mu$s")
     # Bmag._set_Plot_title("\nWest Gun leading by 5 $\\mu$s")
+    # B.gen_Arrows(30)
     animat = Bmag.make_animation() #Now create an animation
     # animation.save('test.mp4', writer="ffmpeg")
     Bmag.save_animation(path,animat) #Save the animation
@@ -388,15 +427,15 @@ def run(day, shot, t0 = 25, tf = 75, sample_Freq = 5, show = True):
 
 def main():
     """Just a place to specifiy variables"""
-    day ='073019'
-    shot = 16
+    day ='072419'
+    shot = 18
 
     sample_Freq = 5# sampling frequency - turn up for faster animations
     t0 = 20
     tf = 55
 
-    run(day, shot, t0, tf, sample_Freq, show = False)
-
+    run(day, shot, t0, tf, sample_Freq, show = True)
+    snapshot(day, shot, 30)
 
 
 if __name__ == '__main__':

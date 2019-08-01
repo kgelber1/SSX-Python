@@ -1,6 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
+import numpy.ma as ma
 from scipy.integrate import cumtrapz
 import matplotlib.pyplot as plt
 import itertools as it
@@ -29,7 +30,8 @@ matplotlib.figure.Figure.align_ylabels
 
 
 def get_nT(shot, t, ax1, ax2):
-    """little plotter code to get the n and T
+    """little plotter code to get the n and T,
+    used for the mangetic animations
 
       -- KG 07/12/19
       """
@@ -87,7 +89,6 @@ def get_nT(shot, t, ax1, ax2):
     # ax2.plot(timeT, Temp, 'kx', color='k',ms = 8, mew=2)
     ax2.plot(timeT, Temp, color='k', linewidth=1)
     ax2.set_ylabel(r'T$_i\ (eV)$',fontsize=20, weight='bold')
-    #ax2.set_xticklabels([])
     ax2.get_yaxis().set_label_coords(-0.11,0.6)
     plt.setp(ax2.spines.values(), linewidth=2)
     ax2.tick_params(axis='both', direction='in', length=7, width =2, labelsize = 20)
@@ -170,7 +171,8 @@ def run_nBT(shots, day, t_min = 15, t_max = 100,  show = True, save = False, yli
         timeN = dens.time
         plt.plot(timeN, n, color='k',lw= 2)
         plt.ylabel(r'n $(10^{15}\ cm^{-3})$',fontsize=20, weight='bold')
-        plt.title(day+'r'+str(shot)+title1, fontsize=20, weight='bold')
+        # plt.title(day+'r'+str(shot)+title1, fontsize=20, weight='bold')
+        plt.title(day+'r'+str(shot), fontsize=20, weight='bold')
         ax1.get_yaxis().set_label_coords(-0.11,0.6) # for aligning the y-labels in one line
         plt.setp(ax1.spines.values(), linewidth=2)#changing the axis linewidth
         ax1.tick_params(axis='both', direction='in', length=7, width =2, labelsize = 20)
@@ -242,8 +244,8 @@ def run_nBT(shots, day, t_min = 15, t_max = 100,  show = True, save = False, yli
             fig.savefig(fName,dpi=600,facecolor='w',edgecolor='k')
 
 
-def plot_nT(title,t_dens, den, t_Ti, Ti, ylim, d_err = [], t_err= [], save = True):
-    """ As the name may sugest, plots density and temperatreu subplots with error bars
+def plot_nTave(title,t_dens, den, t_Ti, Ti, ylim, d_err = [], t_err= [], save = True):
+    """ As the name may sugest, plots density and temp subplots with error bars
 
     ylim is the lim of the temp graph
 
@@ -272,6 +274,120 @@ def plot_nT(title,t_dens, den, t_Ti, Ti, ylim, d_err = [], t_err= [], save = Tru
         fig.savefig(fname,dpi=600,facecolor='w',edgecolor='k')
 
     plt.show()
+
+
+
+def plot_nT(shots, day, t_min = 15, t_max = 100,  show = True, save = False, ylim = 35, mask = False, mark = -1):
+    """ same as run NbT but ommits the magnetic field
+
+      -- KG 06/28/19
+      """
+
+    minorLocator = AutoMinorLocator(10)       # leads to a single minor tick
+    gs = gridspec.GridSpec(4,1)
+    plt.rcParams['text.latex.preamble']=[r'\boldmath']
+
+    # Looks like the scope that is used for inferometer?
+    scope_used='1'
+
+    path = 'data\\2019\\'+day+'\\Analyzed\\'
+
+    setting1 = '_merging'
+    setting2 = '_beta_Alfvenspeed'#'_WLH_GasDelay_550mus'
+    setting3 = '_eos_windtunnel'
+    title1 = r': WLH, 1 mW, 600 $\mu s$, Merging Configuration'
+    #title1 = ': WLH, 1 mW, 600 $\mu s$, coil scan at 25 kV'
+    title2 = ': WLH, 1 mW, 600 $\mu s$, Merging Configuration'
+    title3 = ': WLH, 1 mW, 600 $\mu s$, Merging Configuration'
+
+    env, offset, phasediff=ds.dens_calib(dcs.calshot(day), scope= scope_used)
+    a = env[0]/2
+    b = env[1]/2
+    # a = 1.312/2  for day  = '013017'
+    # b = 1.234/2
+    # a = 0.928/2
+    # b = 0.978/2
+    def f(time, A, B): # this is your 'straight line' y=f(x)
+        return A*time+B
+
+    for shot in shots:
+        print( 'On Shot',shot)
+
+        plt.close('all')
+        # Adjust the spacing:
+        fig=plt.figure(num=1,figsize=(8.5,10),facecolor='w',edgecolor='k')#, dpi=600)
+        fig.subplots_adjust(top=0.95, bottom=0.11, left = 0.14, right=0.96, hspace=0.2)
+        ax1=plt.subplot(2,1,1)
+
+        plt.text(0.07,0.92,'(a)',fontsize=26, weight='bold',horizontalalignment='center',verticalalignment='center',transform=ax1.transAxes,)
+
+        dens = ssxd.interferometer(day+'r'+str(shot), [a, b], scope = scope_used, showPlot=False)
+        density= dens.density
+        sm_density=ism.iter_smooth(density,loops=30, window_len=29)
+        n = sm_density/(1e15)
+        #popt, pcov = curve_fit(f, dens.time[0:2000], n[0:2000])
+        #n = n + f(dens.time, *popt*1.3)
+        timeN = dens.time
+        plt.plot(timeN, n, color='k',lw= 2)
+        if(mark > 0):
+            interp_den = interp1d(timeN, n, kind='linear')
+            plt.scatter(mark, interp_den(mark), color = 'red', linewidth=5)
+        plt.ylabel(r'n $(10^{15}\ cm^{-3})$',fontsize=20, weight='bold')
+        # plt.title(day+'r'+str(shot)+title1, fontsize=20, weight='bold')
+        plt.title(day+'r'+str(shot), fontsize=20, weight='bold')
+        # if mark:
+        #     plt.title(day+'r'+str(shot) + '- ' + str(mark), fontsize=20, weight='bold')
+        ax1.get_yaxis().set_label_coords(-0.11,0.6) # for aligning the y-labels in one line
+        plt.setp(ax1.spines.values(), linewidth=2)#changing the axis linewidth
+        ax1.tick_params(axis='both', direction='in', length=7, width =2, labelsize = 20)
+        ax1.tick_params(axis='x', which='minor', direction='in', length=5, width =1)
+        ax1.xaxis.set_minor_locator(minorLocator)
+        plt.xlim(t_min,t_max)
+
+        #########################################
+        ax2=plt.subplot(2,1,2)
+        plt.text(0.07,0.92,'(b)',fontsize=26, weight='bold',horizontalalignment='center',verticalalignment='center',transform=ax2.transAxes)
+        d=idsd.ids(day+'r'+str(shot))
+        d.processIDS(times=[-2,125])
+        timeT=d.time
+        # This is where the errors happen?
+        indices = np.where(d.kTFit.mask == False)[0] #Get indices of unmasked values
+        Temp = d.kTFit.compressed() #Get unmasked values
+        timeT = timeT[indices] #Adjust length of time array
+        Terr = d.kTErr[indices]
+        if mask:
+            timeT = ma.masked_less(timeT, 26)
+            mask  = ma.getmask(timeT)
+            Temp = ma.masked_where(mask,Temp)
+            Terr = ma.masked_where(mask,Terr)
+        plt.errorbar(timeT, Temp, Terr, fmt='None', ecolor='k',elinewidth=2,markeredgewidth=2,capsize=4)
+        plt.plot(timeT, Temp, 'kx', color='k',ms = 8, mew=2)
+        plt.plot(timeT, Temp, color='k', linewidth=1)
+        if(mark > 0):
+            interp_Temp = interp1d(timeT, Temp, kind='linear')
+            plt.scatter(mark, interp_Temp(mark), color = 'red', linewidth=5)
+        plt.ylabel(r'T$_i\ (eV)$',fontsize=20, weight='bold')
+        #ax2.set_xticklabels([])
+        ax2.get_yaxis().set_label_coords(-0.11,0.6)
+        plt.setp(ax2.spines.values(), linewidth=2)
+        ax2.tick_params(axis='both', direction='in', length=7, width =2, labelsize = 20)
+        ax2.tick_params(axis='x', which='minor', direction='in', length=5, width =1)
+        ax2.xaxis.set_minor_locator(minorLocator)
+        #ax2.tick_params(axis='y', direction='in', length=7, width =2)
+        plt.xlim(t_min,t_max)
+        plt.ylim(0,ylim)
+
+        plt.xlim(t_min,t_max)
+        plt.xlabel(r'$Time\ (\mu s)$',fontsize=20, weight='bold')
+
+        ########## Saving Figure 1 ##################
+        fName = path+day+'r'+str(shot)+setting1+'_plot.png'
+        if save:
+            fig.savefig(fName,dpi=600,facecolor='w',edgecolor='k')
+            print("Saved as", fName)
+        if show:
+            plt.show()
+
 
 
 
@@ -414,7 +530,7 @@ def get_stats(shots,day, show = True, save = True, ylim = 35):
 
     if show:
         title = day + ' - averaged'
-        plot_nT(title, t_dens, den, t_Ti, Ti, ylim)
+        plot_nTave(title, t_dens, den, t_Ti, Ti, ylim)
         print("Density Stats:")
         print("\tAverage time of peak:\n\t %.1f +/- %2.1f us" %(stats(ne_t)))
         print("\tAverage Value of peak:\n\t %.1f +/- %2.1f e15" %(stats(ne_peak)))
@@ -432,6 +548,12 @@ def get_stats(shots,day, show = True, save = True, ylim = 35):
         #haven't wrote yet but you could add a function to save the data here
         pass
 
+def plot_ids(shot, day):
+    d=idsd.ids(day+'r'+str(shot))
+    # d.plotRawIDS()
+    # d.im()
+    d.plotIDS()
+    plt.show()
 
 def get_stats_err(shots,day, show = True, save = True, ylim = 35):
     """
@@ -584,7 +706,7 @@ def get_stats_err(shots,day, show = True, save = True, ylim = 35):
 
     if show:
         title = day + ' - averaged'
-        plot_nT(title, t_dens, den, t_Ti, Ti, ylim, d_err, t_err, save)
+        plot_nTave(title, t_dens, den, t_Ti, Ti, ylim, d_err, t_err, save)
         print("Density Stats:")
         print("\tAverage time of peak:\n\t %.1f +/- %2.1f us" %(stats(ne_t)))
         print("\tAverage Value of peak:\n\t %.1f +/- %2.1f e15" %(stats(ne_peak)))
@@ -628,7 +750,7 @@ def get_stats_err(shots,day, show = True, save = True, ylim = 35):
 
 def main():
     #change your params!
-    day = '073019'
+    day = '071819'
     first_shot = 12
     # last_shot = 44
     last_shot = 14
@@ -639,9 +761,11 @@ def main():
     all_shots = np.arange(first_shot,last_shot+1)
     shots = [shot for shot in all_shots if shot not in bad_shots]
     # shots = [12,25,33,42]
-    # shots = [31]
+    shots = [35]
+    # plot_ids(13, day)
     # run_nBT(shots, day, t_min = 15, t_max = 75, show = True, save = False, ylim = 100)
-    get_stats_err(shots, day, ylim = 40)
+    # get_stats_err(shots, day, ylim = 40)
 
+    plot_nT(shots, day, ylim = 60, save = True, show = False, mask = True, mark = 29.31)
 if __name__ == '__main__':
     main()

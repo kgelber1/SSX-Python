@@ -166,7 +166,8 @@ class BField_mag_Animator(object):
         # original
         # ax.view_init(elev=16.0, azim=-43.0)
         # ax.view_init(elev=30.0, azim=-20.0)
-        ax.view_init(elev=16.0, azim=-25.0)
+        # ax.view_init(elev=16.0, azim=-25.0)
+        ax.view_init(elev=26.0, azim=-25.0)
 
 
         #Plot the probe axis
@@ -366,7 +367,48 @@ def run(day, shot, t0 = 25, tf = 75, sample_Freq = 5, show = True):
     if show:
         plt.show()
 
-def main():
+def snapshot(day, shot, at_time,  t0 = 25, tf = 75, sample_Freq = 1, show = True):
+        shot = day+'r'+ str(shot) #'40'#
+        timeb,b = pmd.get_Bxy_vecRendering_format_lookup(shot)
+
+        ######## fixing bounds using a function called fix_bounds ##########
+        t_index, t = my.fix_bounds(np.array((t0, tf)), timeb)
+
+        # Find what start and end index correspond to the right times
+        t0 = t_index[0]
+        tf = t_index[-1]
+        b = b[:,:,t0:tf]
+
+
+        probe_locs = vp.get_probeLocs_SSX_setup_cm(num_probes = 16)
+
+        #convert things to time vs probes instead of probes vs time
+        #and also thin the time
+        x = b[0,:,:].T[0:-1:sample_Freq]
+        y = b[1,:,:].T[0:-1:sample_Freq]
+        z = b[2,:,:].T[0:-1:sample_Freq]
+
+        t = timeb[t0:tf][0:-1:sample_Freq]
+        # path = os.getcwd() + '\\' + 'Magnetic_animations\\'
+        path = os.getcwd() + '\\data\\2019\\' +day+'\\Analyzed\\'
+
+        ##############################################
+        ######## Plotting the magnetic field vector rendering ############
+
+        Bmag = BField_mag_Animator(shot,t,probe_locs,x,y,z)#Instantiate the BField_xy_Animator Object
+        Bmag._set_flags([8,10,12]) #some probes have questionable directions
+        Bmag._set_dead([0])#probe has dead z- component
+        # Bmag._set_Plot_title("\nWest Gun lagging by 1 $\\mu$s")
+        # Bmag._set_Plot_title("\nWest Gun leading by 5 $\\mu$s")
+        t_index = my.tindex_center(t, at_time)
+        Bmag.gen_Arrows(t_index)
+        fName = os.getcwd() + '\\generated_images\\' + str(shot)+ "-" + str(at_time) + "us.png"
+        plt.savefig(fName,dpi=800,facecolor='w',edgecolor='k')
+        if show:
+            plt.show()
+
+
+def run(day, shot, t0 = 25, tf = 75, sample_Freq = 5, show = True):
     """ Main animating function.
 
         Update paramters like day and shot, as well as start and end times
@@ -384,23 +426,16 @@ def main():
     # day = '061219'#'062618'#'101917'
     # shot = 13#85
 
-    day ='071819'
-    shot = 19
-
 
     shot = day+'r'+ str(shot) #'40'#
-
     timeb,b = pmd.get_Bxy_vecRendering_format_lookup(shot)
 
-    ######### fixing bounds using a function called fix_bounds ###########
-    t0 = 25
-    tf = 70
+    ######### fixing bounds using a function called fix_bounds ##########
     t_index, t = my.fix_bounds(np.array((t0, tf)), timeb)
 
     #Find what start and end index correspond to the right times
     t0 = t_index[0]
     tf = t_index[-1]
-    sample_Freq = 1# sampling frequency - turn up for faster animations
     b = b[:,:,t0:tf]
 
 
@@ -420,14 +455,45 @@ def main():
     ######## Plotting the magnetic field vector rendering ############
 
     Bmag = BField_mag_Animator(shot,t,probe_locs,x,y,z)#Instantiate the BField_xy_Animator Object
-    Bmag._set_flags([8,10,12])
-    Bmag._set_dead([0])
+    Bmag._set_flags([8,10,12]) #some probes have questionable directions
+    Bmag._set_dead([0])#probe has dead z- component
     # Bmag._set_Plot_title("\nWest Gun lagging by 1 $\\mu$s")
     # Bmag._set_Plot_title("\nWest Gun leading by 5 $\\mu$s")
-    animation = Bmag.make_animation() #Now create an animation
-    # Bmag.save_animation(path,animation) #Save the animation
+    # B.gen_Arrows(30)
+    animat = Bmag.make_animation() #Now create an animation
+    # animation.save('test.mp4', writer="ffmpeg")
+    Bmag.save_animation(path,animat) #Save the animation
+    if show:
+        plt.show()
 
-    plt.show()
+
+def main():
+    """Just a place to specifiy variables
+
+
+         --KG 07/15/19
+        """
+    # day = '061219'#'062618'#'101917'
+    # shot = 13#85
+
+    day ='072419'
+    shot = 28
+
+    ######### fixing bounds using a function called fix_bounds ###########
+    sample_Freq = 5# sampling frequency - turn up for faster animations
+    t0 = 25
+    tf = 70
+
+    # run(day, shot, t0, tf, sample_Freq, show = True)
+    # all = [['072419', 17, 30.85], ['072419',23,38.85],  ['073019',13, 32.38 ], ['073019',12, 30.23 ],
+    #        ['073019', 14, 37 ], ['073019',16, 45.4 ], ['073019',17,31.4 ], ['073019',20, 31.9 ], ['073019', 24, 32.23 ],
+    #        ['073019', 29, 29.84], ['073019', 31, 39.23],['073019', 37, 32.23],['073019', 41, 35.38], ['073019', 43, 37]]
+    # all = [['071019', 33, 38.15]]
+    # # all = [['071019', 28, 38.85]]
+    # for day, shot, time in all:
+    #     snapshot(day, shot, time, show = False)
+    snapshot('071819', 35, 29.31, show = False)
+
 
 if __name__ == '__main__':
     main()
